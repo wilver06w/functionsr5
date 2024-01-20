@@ -1,19 +1,33 @@
 // The Cloud Functions for Firebase SDK to create Cloud Functions and triggers.
 const {logger} = require("firebase-functions");
-const {onRequest} = require("firebase-functions/v2/https");
-const {onDocumentCreated} = require("firebase-functions/v2/firestore");
+const {onDocumentCreated, onDocumentUpdated} = require("firebase-functions/v2/firestore");
 
 // The Firebase Admin SDK to access Firestore.
 const {initializeApp} = require("firebase-admin/app");
-const {getFirestore} = require("firebase-admin/firestore");
 
 initializeApp();
 
-exports.changeTitle = onDocumentCreated("user/{userid}/task/{taskid}" ,(event) =>{
-    return event.data.ref.set(
-      {
-        ttitle: 'Traducido titulo',
-        tdescription: 'Traducido descripcion',
-      },
-   {merge: true,});
+exports.createTraslate = onDocumentCreated("user/{userid}/task/{taskid}" ,(event) =>{
+  return event.data.ref.set(
+    {
+      ttitle: 'Traducido titulo',
+      tdescription: 'Traducido descripcion',
+    },
+    {merge: true,});
+  });
+
+  exports.updateTraslate = onDocumentUpdated("user/{userid}/task/{taskid}" ,(event) =>{
+    const title = event.data.after.data().ttitle ?? '';
+    const description = event.data.after.data().tdescription ?? '';
+
+  if(title == '' && description == ''){
+    return event.after.ref.update({
+      ttitle: 'Traducido titulo UpdateE',
+      tdescription: 'Traducido descripcion UpdateE',
+    });
+  }
+
+    return new Promise((resolve, reject) => {
+      resolve(true);
+    });
 });
