@@ -21,7 +21,7 @@ exports.createTraslate = onDocumentCreated("user/{userid}/task/{taskid}" ,(event
     const description = event.data.after.data().tdescription ?? '';
 
   if(title == '' && description == ''){
-    return event.after.ref.update({
+    return event.data.after.ref.update({
       ttitle: 'Traducido titulo UpdateE',
       tdescription: 'Traducido descripcion UpdateE',
     });
