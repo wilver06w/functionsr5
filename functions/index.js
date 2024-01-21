@@ -1,23 +1,9 @@
-const request = require("request");
 const axios = require("axios");
-
-// The Cloud Functions for Firebase SDK to create Cloud Functions and triggers.
-
-const {TranslationServiceClient} = require('@google-cloud/translate');
-// const {TranslationServiceClient} = require('@google-cloud/translate').v2;
-
 const {logger} = require("firebase-functions");
 const {onDocumentCreated, onDocumentUpdated} = require("firebase-functions/v2/firestore");
 const {initializeApp} = require("firebase-admin/app");
-require('dotenv').config();
 
-// const CREDENTIALS = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS);
-// const {traslateClass} = require("./google_translate");
-// The Firebase Admin SDK to access Firestore.
 initializeApp();
-
-const client = new TranslationServiceClient();
-
 
 
 const createTraslate = async (text, targetLanguageCode) => {
