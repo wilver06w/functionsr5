@@ -1,13 +1,12 @@
-const axios = require("axios");
-const {logger} = require("firebase-functions");
+const {axios} = require("axios");
+
 const {onDocumentCreated, onDocumentUpdated} = require("firebase-functions/v2/firestore");
 const {initializeApp} = require("firebase-admin/app");
 
 initializeApp();
 
-
 const createTraslate = async (text, targetLanguageCode) => {
-  const response = await axios.post(`https://translation.googleapis.com/language/translate/v2?key=AIzaSyBNb9ZXA7e3yZUsJhKgsykgtLNJ1it0Njc`,
+  const response = await axios.post(`https://translation.googleapis.com/language/translate/v2?key=${process.env.TRANSLATEKEY}`,
   {
     q: text, target: targetLanguageCode,
   });
@@ -25,8 +24,6 @@ exports.createTraslate = onDocumentCreated("user/{userid}/task/{taskid}" ,async 
 
   const title = event.data.data().title ?? '';
   const description = event.data.data().description ?? '';
-  logger.info(title);
-  logger.info(description);
 
   var titleEng = await createTraslate(title, 'en');
   var descriptionEng =   await createTraslate(description, 'en');
