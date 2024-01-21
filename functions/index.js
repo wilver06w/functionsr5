@@ -45,20 +45,12 @@ exports.createTraslate = onDocumentCreated("user/{userid}/task/{taskid}" ,async 
   var titleEng = await createTraslate(title, 'en');
   var descriptionEng =   await createTraslate(description, 'en');
 
-  logger.info(titleEng);
-  logger.info(descriptionEng);
-
-  // if (titleEng !== undefined && descriptionEng !== undefined) {
-
     return  event.data.ref.set(
         {
           ttitle: titleEng,
           tdescription: descriptionEng,
-          // ttitle: 'aca',
-          // tdescription: 'ww',
         },
         {merge: true,});
-      // }
 });
 
 
