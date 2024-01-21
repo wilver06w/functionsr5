@@ -1,4 +1,6 @@
+const  request = require("request");
 // The Cloud Functions for Firebase SDK to create Cloud Functions and triggers.
+
 const {TranslationServiceClient} = require('@google-cloud/translate');
 // const {TranslationServiceClient} = require('@google-cloud/translate').v2;
 
@@ -14,19 +16,78 @@ initializeApp();
 
 const client = new TranslationServiceClient();
 
-async function translateText() {
-  const text = 'Hola como estas!';
-  const targetLanguageCode = 'es'; // English
+async function translateTextRequest(text, targetLanguageCode) {
+// const translateTextRequest = async (text, targetLanguageCode) => {
+  const url = 'https://translation.googleapis.com/language/translate/v2?key=AIzaSyBNb9ZXA7e3yZUsJhKgsykgtLNJ1it0Njc';
+try{
+  request(
+    {
+      url: url,
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    method: 'POST',
+    json: {q: text, target: targetLanguageCode,}
+  }, function(error, response, body){
+    const translation = response.body.data.translations[0];
+    const translatedText = translation.translatedText;
 
-  const [response] = await client.translateText({
-    contents: [text],
-    targetLanguageCode: targetLanguageCode,
-    locations: 'global',
+    logger.info("Traducido: "+translatedText);
+    return translatedText;
   });
-
-  const translation = response.translations[0];
-  logger.info(`Translated text: ${translation.translatedText}`);
+}catch(error){
+  logger.info("Error: "+error);
+  return error;
 }
+};
+// async function translateTextRequest(text, targetLanguageCode) {
+//   const url = 'https://translation.googleapis.com/language/translate/v2?key=AIzaSyBNb9ZXA7e3yZUsJhKgsykgtLNJ1it0Njc';
+// try{
+//   request(
+//     {
+//       url: url,
+//     headers: {
+//         'Content-Type': 'application/json',
+//     },
+//     method: 'POST',
+//     json: {q: text, target: targetLanguageCode,}
+//   }, function(error, response, body){
+//     const translation = response.body.data.translations[0];
+//     const translatedText = translation.translatedText;
+
+//     logger.info("Traducido: "+translatedText);
+//     return translatedText;
+//   });
+// }catch(error){
+//   logger.info("Error: "+error);
+//   return error;
+// }
+// };
+
+// async function translateTextRequest(text, targetLanguageCode) {
+//   try {
+//     const url = 'https://translation.googleapis.com/language/translate/v2?key=AIzaSyBNb9ZXA7e3yZUsJhKgsykgtLNJ1it0Njc';
+
+//     const options = {
+//       url,
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       method: 'POST',
+//       json: { q: text, target: targetLanguageCode },
+//     };
+
+//     const response = request(options);
+//     const translation = response.body.data.translations[0];
+//     const translatedText = translation.translatedText;
+
+//     return translatedText;
+//   } catch (error) {
+//     console.error('Error al traducir texto:', error);
+//     throw error;
+//   }
+// }
+
 
 exports.createTraslate = onDocumentCreated("user/{userid}/task/{taskid}" ,async (event) =>{
 
@@ -35,28 +96,23 @@ exports.createTraslate = onDocumentCreated("user/{userid}/task/{taskid}" ,async 
   logger.info(title);
   logger.info(description);
 
-  // const titleEng =
-   await translateText(title, 'en');
-  // const descriptionEng =
-   await translateText(description, 'en');
+  var titleEng = await translateTextRequest(title, 'en');
+  var descriptionEng =   await translateTextRequest(description, 'en');
 
   logger.info(titleEng);
   logger.info(descriptionEng);
 
-  return event.data.ref.set(
-    {
-      ttitle: '',
-      tdescription: '',
-      //  await  traslateClass.translateText(description)
-      //       .then((res) => {
-      //           console.log(res);
-      //       })
-      //       .catch((err) => {
-      //           console.log(err);
-      //       }),
-    },
-    {merge: true,});
-  });
+  if (titleEng !== undefined && descriptionEng !== undefined) {
+
+    return  event.data.ref.set(
+        {
+          ttitle: 'aca',
+          tdescription: 'ww',
+        },
+        {merge: true,});
+      }
+});
+
 
 
 
