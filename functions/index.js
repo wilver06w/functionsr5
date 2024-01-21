@@ -1,4 +1,6 @@
-const  request = require("request");
+const request = require("request");
+const axios = require("axios");
+
 // The Cloud Functions for Firebase SDK to create Cloud Functions and triggers.
 
 const {TranslationServiceClient} = require('@google-cloud/translate');
@@ -16,77 +18,21 @@ initializeApp();
 
 const client = new TranslationServiceClient();
 
-async function translateTextRequest(text, targetLanguageCode) {
-// const translateTextRequest = async (text, targetLanguageCode) => {
-  const url = 'https://translation.googleapis.com/language/translate/v2?key=AIzaSyBNb9ZXA7e3yZUsJhKgsykgtLNJ1it0Njc';
-try{
-  request(
-    {
-      url: url,
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    method: 'POST',
-    json: {q: text, target: targetLanguageCode,}
-  }, function(error, response, body){
-    const translation = response.body.data.translations[0];
-    const translatedText = translation.translatedText;
 
-    logger.info("Traducido: "+translatedText);
-    return translatedText;
+
+const createTraslate = async (text, targetLanguageCode) => {
+  const response = await axios.post(`https://translation.googleapis.com/language/translate/v2?key=AIzaSyBNb9ZXA7e3yZUsJhKgsykgtLNJ1it0Njc`,
+  {
+    q: text, target: targetLanguageCode,
   });
-}catch(error){
-  logger.info("Error: "+error);
-  return error;
-}
+
+  const data = response.data.data;
+  const translation = data.translations[0];
+  const translatedText = translation.translatedText;
+
+
+  return translatedText;
 };
-// async function translateTextRequest(text, targetLanguageCode) {
-//   const url = 'https://translation.googleapis.com/language/translate/v2?key=AIzaSyBNb9ZXA7e3yZUsJhKgsykgtLNJ1it0Njc';
-// try{
-//   request(
-//     {
-//       url: url,
-//     headers: {
-//         'Content-Type': 'application/json',
-//     },
-//     method: 'POST',
-//     json: {q: text, target: targetLanguageCode,}
-//   }, function(error, response, body){
-//     const translation = response.body.data.translations[0];
-//     const translatedText = translation.translatedText;
-
-//     logger.info("Traducido: "+translatedText);
-//     return translatedText;
-//   });
-// }catch(error){
-//   logger.info("Error: "+error);
-//   return error;
-// }
-// };
-
-// async function translateTextRequest(text, targetLanguageCode) {
-//   try {
-//     const url = 'https://translation.googleapis.com/language/translate/v2?key=AIzaSyBNb9ZXA7e3yZUsJhKgsykgtLNJ1it0Njc';
-
-//     const options = {
-//       url,
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       method: 'POST',
-//       json: { q: text, target: targetLanguageCode },
-//     };
-
-//     const response = request(options);
-//     const translation = response.body.data.translations[0];
-//     const translatedText = translation.translatedText;
-
-//     return translatedText;
-//   } catch (error) {
-//     console.error('Error al traducir texto:', error);
-//     throw error;
-//   }
-// }
 
 
 exports.createTraslate = onDocumentCreated("user/{userid}/task/{taskid}" ,async (event) =>{
@@ -96,21 +42,23 @@ exports.createTraslate = onDocumentCreated("user/{userid}/task/{taskid}" ,async 
   logger.info(title);
   logger.info(description);
 
-  var titleEng = await translateTextRequest(title, 'en');
-  var descriptionEng =   await translateTextRequest(description, 'en');
+  var titleEng = await createTraslate(title, 'en');
+  var descriptionEng =   await createTraslate(description, 'en');
 
   logger.info(titleEng);
   logger.info(descriptionEng);
 
-  if (titleEng !== undefined && descriptionEng !== undefined) {
+  // if (titleEng !== undefined && descriptionEng !== undefined) {
 
     return  event.data.ref.set(
         {
-          ttitle: 'aca',
-          tdescription: 'ww',
+          ttitle: titleEng,
+          tdescription: descriptionEng,
+          // ttitle: 'aca',
+          // tdescription: 'ww',
         },
         {merge: true,});
-      }
+      // }
 });
 
 
