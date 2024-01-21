@@ -56,14 +56,19 @@ exports.createTraslate = onDocumentCreated("user/{userid}/task/{taskid}" ,async 
 
 
 
-  exports.updateTraslate = onDocumentUpdated("user/{userid}/task/{taskid}" ,(event) =>{
-    const title = event.data.after.data().ttitle ?? '';
-    const description = event.data.after.data().tdescription ?? '';
+  exports.updateTraslate = onDocumentUpdated("user/{userid}/task/{taskid}" ,async (event) =>{
+    const ttitle = event.data.after.data().ttitle ?? '';
+    const tdescription = event.data.after.data().tdescription ?? '';
+    const title = event.data.after.data().title ?? '';
+    const description = event.data.after.data().description ?? '';
 
-  if(title == '' && description == ''){
+  if(ttitle == '' && tdescription == ''){
+    var titleEng = await createTraslate(title, 'en');
+    var descriptionEng =   await createTraslate(description, 'en');
+
     return event.data.after.ref.update({
-      ttitle: 'Traducido titulo UpdateE',
-      tdescription: 'Traducido descripcion UpdateE',
+      ttitle: titleEng,
+      tdescription: descriptionEng,
     });
   }
 
